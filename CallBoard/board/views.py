@@ -7,8 +7,8 @@ from .models import Image
 # Create your views here.
 
 def image(request, image_id):
-    image = Image.objects.get(pk=image_id)
-    if image is not None:
-        return render(request, 'image.html', {'image': image})
+    images = Image.objects.get(pk=image_id)
+    if images is not None:
+        return render(request, 'image.html', {'image': images})
     else:
         return Http404('Image not found')

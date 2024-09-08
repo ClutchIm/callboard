@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from embed_video.fields import EmbedVideoField
 
 import random
 
@@ -29,14 +30,26 @@ class Image(models.Model):
         Модель изображения, содержащее поле:
 
         name - текстовое поле для имени картинки
-        image - поле изображения
+        file - поле изображения
     """
 
-    name = models.CharField(max_length=120)
-    image = models.ImageField(upload_to='board/files/images/')
+    name = models.CharField(max_length=150)
+    file = models.ImageField(upload_to='board/files/images/')
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
+
+
+class Video(models.Model):
+    """
+
+    """
+
+    name = models.CharField(max_length=150)
+    url = EmbedVideoField()
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Post(models.Model):

@@ -15,7 +15,7 @@ class PostAdmin(admin.ModelAdmin):
 
 class ImageAdmin(admin.ModelAdmin):
     model = Image
-    list_display = ('id', 'name', 'image',)
+    list_display = ('id', 'name', 'file',)
 
 
 # Register your models here.
