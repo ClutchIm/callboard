@@ -25,7 +25,18 @@ class Member(models.Model):
 
 
 class Image(models.Model):
-    pass
+    """
+        Модель изображения, содержащее поле:
+
+        name - текстовое поле для имени картинки
+        image - поле изображения
+    """
+
+    name = models.CharField(max_length=120)
+    image = models.ImageField(upload_to='board/files/images/')
+
+    def __str__(self):
+        return self.name
 
 
 class Post(models.Model):
@@ -54,6 +65,7 @@ class Post(models.Model):
 
     title = models.CharField(max_length=200)
     text = models.TextField()
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True)
     author = models.ForeignKey(Member, on_delete=models.CASCADE)
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE)
     time_in = models.DateTimeField(auto_now_add=True)
@@ -93,7 +105,7 @@ class OneTimeCode(models.Model):
         generate_code() - функция генерирующая одноразовый код
     """
 
-    code = models.IntegerField(max_length=6, unique=True, blank=True)
+    code = models.IntegerField(unique=True, blank=True)
 
     def generate_code(self):
         self.code = random.randrange(100000, 999999)
