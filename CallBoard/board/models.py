@@ -1,8 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 from embed_video.fields import EmbedVideoField
-
 import random
+
+from .resources import CATEGORY_CHOICE
 
 
 class Member(models.Model):
@@ -42,7 +43,11 @@ class Image(models.Model):
 
 class Video(models.Model):
     """
+        Модель видеороликов хранящее информацию о ссылках на ролики,
+    которые будут напрямую запускаться на сайте. Содержит поля:
 
+        name - текстовое поле для названия ролика
+        url - поле хранящее ссылку на ролик
     """
 
     name = models.CharField(max_length=150)
@@ -58,27 +63,17 @@ class Post(models.Model):
 
         title - текстовое поле для заголовка, максимум 200 символов
         text - текстовое поле для основного текста поста
+        image -
+        video -
         author - связывающее поле с моделью Member
         category -
         time_in - поле для отслеживания времени создания поста
     """
 
-    CATEGORY_CHOICE = [
-        ("TA", "Танки"),
-        ("HE", "Хилы"),
-        ("DD", "ДД"),
-        ("TR", "Торговцы"),
-        ("GM", "Гильдмастеры"),
-        ("QG", "Квестгиверы"),
-        ("BS", "Кузнецы"),
-        ("SK", "Кожевники"),
-        ("AL", "Зельевары"),
-        ("SM", "Мастера заклинаний"),
-    ]
-
     title = models.CharField(max_length=200)
     text = models.TextField()
     image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE, blank=True)
     author = models.ForeignKey(Member, on_delete=models.CASCADE)
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE)
     time_in = models.DateTimeField(auto_now_add=True)

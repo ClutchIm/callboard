@@ -1,0 +1,6 @@
+{% load embed_video_tags %}
+
+{% for vid in videos %}
+  {{ vid.name }}
+  {% video vid.url "426x240" %}
+{% endfor %}

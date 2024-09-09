@@ -4,7 +4,7 @@ from django.contrib import admin
 
 
 from .models import (
-    Member, Image, Post, Comment
+    Member, Image, Video, Post, Comment
 )
 
 
@@ -22,6 +22,7 @@ class ImageAdmin(admin.ModelAdmin):
 
 admin.site.register(Post, PostAdmin)
 admin.site.register(Image, ImageAdmin)
+admin.site.register(Video)
 admin.site.register(Comment)
 admin.site.register(Member)
 
