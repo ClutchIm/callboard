@@ -1,11 +1,16 @@
 {% extends 'flatpages/default.html' %}
 
 {% block title %}
-    Какая-то фигня
+    Посты
 {% endblock title %}
 
 
 {% block content %}
-    {{image.name}}
-    <img style="max-width: 500px" src={{image.file.url}}>
+
+    {% if post %}
+        {% for p in post %}
+            p.title
+        {% endfor %}
+    {% endif %}
+
 {% endblock content %}

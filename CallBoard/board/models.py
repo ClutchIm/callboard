@@ -34,7 +34,6 @@ class Image(models.Model):
     """
         Модель изображения, содержащее поле:
 
-        name - текстовое поле для имени картинки
         file - поле изображения
     """
 
@@ -42,7 +41,6 @@ class Image(models.Model):
         verbose_name = 'Изображение'
         verbose_name_plural = 'Изображения'
 
-    name = models.CharField(max_length=150, verbose_name="Название")
     file = models.ImageField(upload_to='board/files/images/', verbose_name="Изображение")
 
     def __str__(self):
@@ -54,7 +52,6 @@ class Video(models.Model):
         Модель видеороликов хранящее информацию о ссылках на ролики,
     которые будут напрямую запускаться на сайте. Содержит поля:
 
-        name - текстовое поле для названия ролика
         url - поле хранящее ссылку на ролик
     """
 
@@ -62,7 +59,6 @@ class Video(models.Model):
         verbose_name = 'Видео'
         verbose_name_plural = 'Видео'
 
-    name = models.CharField(max_length=150, verbose_name="Название")
     url = EmbedVideoField(verbose_name="Ссылка")
 
     def __str__(self):
@@ -109,7 +105,6 @@ class PostVideo(models.Model):
 
     class Meta:
         verbose_name = 'Пост-Видео'
-        verbose_name_plural = ''
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
     video = models.ForeignKey(Video, on_delete=models.CASCADE, verbose_name="Видео")
@@ -129,9 +124,13 @@ class PostImage(models.Model):
 
     class Meta:
         verbose_name = 'Пост-Изображение'
-        verbose_name_plural = ''
 
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        verbose_name="Пост",
+        help_text="Первое фото будет выбрано в качестве превью",
+    )
     image = models.ForeignKey(Image, on_delete=models.CASCADE, verbose_name="Изображение")
 
     def __str__(self):
