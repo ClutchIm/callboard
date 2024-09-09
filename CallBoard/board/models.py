@@ -18,9 +18,13 @@ class Member(models.Model):
     или отключение подписки на новостную рассылку по дефолту False
     """
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    user_response = models.BooleanField(default=True)
-    news_subscription = models.BooleanField(default=False)
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user_response = models.BooleanField(default=True, verbose_name="Уведомление об откликах")
+    news_subscription = models.BooleanField(default=False, verbose_name="Новостная рассылка")
 
     def __str__(self):
         return f'{self.user}'
@@ -34,8 +38,12 @@ class Image(models.Model):
         file - поле изображения
     """
 
-    name = models.CharField(max_length=150)
-    file = models.ImageField(upload_to='board/files/images/')
+    class Meta:
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
+
+    name = models.CharField(max_length=150, verbose_name="Название")
+    file = models.ImageField(upload_to='board/files/images/', verbose_name="Изображение")
 
     def __str__(self):
         return f'{self.name}'
@@ -50,8 +58,12 @@ class Video(models.Model):
         url - поле хранящее ссылку на ролик
     """
 
-    name = models.CharField(max_length=150)
-    url = EmbedVideoField()
+    class Meta:
+        verbose_name = 'Видео'
+        verbose_name_plural = 'Видео'
+
+    name = models.CharField(max_length=150, verbose_name="Название")
+    url = EmbedVideoField(verbose_name="Ссылка")
 
     def __str__(self):
         return f'{self.name}'
@@ -66,16 +78,20 @@ class Post(models.Model):
         image - ManyToManyField связывающее Post и Image модели через PostImage модель
         video - ManyToManyField связывающее Post и Video модели через PostVideo модель
         author - связывающее поле с моделью Member
-        category -
+        category - текстовое поле для выбора категории поста
         time_in - поле для отслеживания времени создания поста
     """
 
-    title = models.CharField(max_length=200)
-    text = models.TextField()
-    image = models.ManyToManyField(Image, through='PostImage')
-    video = models.ManyToManyField(Video, through='PostVideo')
-    author = models.ForeignKey(Member, on_delete=models.CASCADE)
-    category = models.CharField(max_length=2, choices=CATEGORY_CHOICE)
+    class Meta:
+        verbose_name = 'Пост'
+        verbose_name_plural = 'Посты'
+
+    title = models.CharField(max_length=200, verbose_name="Заголовок")
+    text = models.TextField(verbose_name="Текст")
+    image = models.ManyToManyField(Image, through='PostImage', verbose_name="Изображения")
+    video = models.ManyToManyField(Video, through='PostVideo', verbose_name="Видео")
+    author = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name="Автор")
+    category = models.CharField(max_length=2, choices=CATEGORY_CHOICE, verbose_name="Категория")
     time_in = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -83,13 +99,43 @@ class Post(models.Model):
 
 
 class PostVideo(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    """
+        Модель связывающая модели Post и Video для множественного
+    добавления видео к посту, содержит поля:
+
+        post - поле связанное с моделью Post
+        video - поле связанное с моделью Video
+    """
+
+    class Meta:
+        verbose_name = 'Пост-Видео'
+        verbose_name_plural = ''
+
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
+    video = models.ForeignKey(Video, on_delete=models.CASCADE, verbose_name="Видео")
+
+    def __str__(self):
+        return f'{self.post}: {self.video}'
 
 
 class PostImage(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    """
+        Модель связывающая модели Post и Image для множественного
+    добавления картинок к посту, содержит поля:
+
+        post - поле связанное с моделью Post
+        image - поле связанное с моделью Image
+    """
+
+    class Meta:
+        verbose_name = 'Пост-Изображение'
+        verbose_name_plural = ''
+
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, verbose_name="Изображение")
+
+    def __str__(self):
+        return f'{self.post}: {self.image}'
 
 
 class Comment(models.Model):
@@ -103,11 +149,15 @@ class Comment(models.Model):
         confirmed - принял ли автор отклик, т.е. виден ли он остальным
     """
 
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(Member, on_delete=models.CASCADE)
-    text = models.TextField()
+    class Meta:
+        verbose_name = 'Отклик'
+        verbose_name_plural = 'Отклики'
+
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
+    author = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name="Автор")
+    text = models.TextField(verbose_name="Текст")
     time_in = models.DateTimeField(auto_now_add=True)
-    confirmed = models.BooleanField(default=False)
+    confirmed = models.BooleanField(default=False, verbose_name="Подтвержденный отклик")
 
     def __str__(self):
         return f'{self.text}'
