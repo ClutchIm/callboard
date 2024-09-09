@@ -63,8 +63,8 @@ class Post(models.Model):
 
         title - текстовое поле для заголовка, максимум 200 символов
         text - текстовое поле для основного текста поста
-        image -
-        video -
+        image - ManyToManyField связывающее Post и Image модели через PostImage модель
+        video - ManyToManyField связывающее Post и Video модели через PostVideo модель
         author - связывающее поле с моделью Member
         category -
         time_in - поле для отслеживания времени создания поста
@@ -72,14 +72,24 @@ class Post(models.Model):
 
     title = models.CharField(max_length=200)
     text = models.TextField()
-    image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True)
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, blank=True)
+    image = models.ManyToManyField(Image, through='PostImage')
+    video = models.ManyToManyField(Video, through='PostVideo')
     author = models.ForeignKey(Member, on_delete=models.CASCADE)
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE)
     time_in = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.title}'
+
+
+class PostVideo(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+
+
+class PostImage(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
 
 
 class Comment(models.Model):
