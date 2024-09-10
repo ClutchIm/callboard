@@ -43,8 +43,6 @@ class Image(models.Model):
 
     file = models.ImageField(upload_to='board/files/images/', verbose_name="Изображение")
 
-    def __str__(self):
-        return f'{self.name}'
 
 
 class Video(models.Model):
@@ -60,9 +58,6 @@ class Video(models.Model):
         verbose_name_plural = 'Видео'
 
     url = EmbedVideoField(verbose_name="Ссылка")
-
-    def __str__(self):
-        return f'{self.name}'
 
 
 class Post(models.Model):
@@ -89,6 +84,14 @@ class Post(models.Model):
     author = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name="Автор")
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE, verbose_name="Категория")
     time_in = models.DateTimeField(auto_now_add=True)
+
+    def show_category(self):
+        """
+            Выводит название категории, а не его ключ
+        """
+        for category in CATEGORY_CHOICE:
+            if self.category == category[0]:
+                return category[1]
 
     def __str__(self):
         return f'{self.title}'

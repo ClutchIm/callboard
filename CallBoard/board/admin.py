@@ -25,10 +25,15 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'text', 'author', 'category',)
     inlines = [VideoInLine, ImageInLine]
 
+
+class ImageAdmin(admin.ModelAdmin):
+    model = Image
+    list_display = ('id', 'file')
+
 # Register your models here.
 
 admin.site.register(Post, PostAdmin)
-admin.site.register(Image)
+admin.site.register(Image, ImageAdmin)
 admin.site.register(Video)
 admin.site.register(Comment)
 admin.site.register(Member)

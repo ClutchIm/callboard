@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from .models import Image, Video, Post
 
@@ -25,6 +25,13 @@ class PostListView(ListView):
     ordering = '-time_in'
     template_name = 'posts.html'
     context_object_name = 'post'
-    paginate_by = 10
+    paginate_by = 8
+
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'post.html'
+    context_object_name = 'post'
+
 
 

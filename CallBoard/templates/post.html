@@ -1,0 +1,42 @@
+{% extends 'flatpages/default.html' %}
+
+{% load embed_video_tags %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+    Пост
+{% endblock title %}
+
+{% block name %}
+    {{ post.title }}
+{% endblock name %}
+
+{% block content %}
+
+    {% if post|image_check %}
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                {% for im in post|get_image %}
+                    <img style="max-width: 500px" src={{im.image.file.url}} />
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="container px-4 px-lg-4 mt-5">
+        {{ post.text|linebreaks }}
+    </div>
+
+    {% if post|video_check %}
+        <div class="container px-4 px-lg-5 mt-5 justify-content-center">
+            <div class="row gx-4 gx-lg-3 row-cols-2 row-cols-md-3 row-cols-xl-3 justify-content-center">
+                {% for vid in post|get_video %}
+                    {% video vid.video.url "426x240" %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock content %}
+
