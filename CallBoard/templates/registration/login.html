@@ -10,4 +10,30 @@
 
 {% block content %}
 
+    <div class="container px-4 px-lg-5 mt-5 ">
+        {% if form.errors %}
+            <p> Проверьте правильность написания логина и пароля</p>
+        {% endif %}
+    </div>
+
+    <form action="{% url 'login' %}" method="post">
+        <div class="container px-4 px-lg-5 mt-5 ">
+            <div class="col mb-2 ">
+                <a>Имя пользователя</a>
+                <div class="justify-content-center">
+                    {{ form.username }}
+                </div>
+            </div>
+            <div class="col mb-2">
+                <a>Пароль</a>
+                <div class="justify-content-center">
+                    {{ form.password }}
+                </div>
+            </div>
+            <div>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Подтвердить</button>
+            </div>
+        </div>
+    </form>
 {% endblock content %}

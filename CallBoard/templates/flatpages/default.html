@@ -32,11 +32,25 @@
                             </ul>
                         </li>
                     </ul>
-                    <form class="d-flex">
-                        <button class="btn btn-outline-dark" type="submit">
-                            Account
-                        </button>
-                    </form>
+                        <form class="d-flex">
+                            <button class="btn btn-outline-dark" type="submit">
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'logout' %}">Выйти</a>
+                                {% else %}
+                                    <a href="{% url 'login' %}">Войти</a>
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        <form class="d-flex">
+                            <button class="btn btn-outline-dark" type="submit">
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'register' %}">Личный кабинет</a>
+                                {% else %}
+                                    <a href="{% url 'register' %}">Регистрация</a>
+                                {% endif %}
+                            </button>
+                        </form>
                 </div>
             </div>
         </nav>

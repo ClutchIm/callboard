@@ -1,0 +1,18 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+    Регистрация
+{% endblock title %}
+
+{% block name %}
+    Регистрация
+{% endblock name %}
+
+{% block content %}
+    <form action="{% url 'register' %}" method="post">
+    {{ form }}
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Подтвердить</button>
+    </form>
+{% endblock content %}
+

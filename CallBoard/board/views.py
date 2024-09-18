@@ -1,7 +1,8 @@
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth import logout
+from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404
 from django.shortcuts import render, redirect
+from django.views import View
 from django.views.generic import ListView, DetailView, CreateView
 
 from .models import Image, Video, Post, OneTimeCode, Member
@@ -37,13 +38,25 @@ class PostDetailView(DetailView):
     context_object_name = 'post'
 
 
-# class RegisterView(CreateView):
-#     model = User
-#     form_class = CustomSignupForm
-#     success_url = '/login'
-#     template_name = 'registration/register.html'
+def logout_view(request):
+    logout(request)
+    return redirect('/post/')
 
 
+class RegisterView(View):
+    template_name = 'registration/register.html'
+
+    def get(self, request):
+        context = {
+            'form': UserCreationForm(),
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = UserCreationForm(request.POST)
+
+        if form.is_valid():
+            form.save()
 
 
 
