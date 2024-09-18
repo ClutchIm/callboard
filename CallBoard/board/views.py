@@ -1,8 +1,11 @@
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.http import Http404
-from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, DetailView, CreateView
 
-from .models import Image, Video, Post
+from .models import Image, Video, Post, OneTimeCode, Member
+# from .forms import CustomSignupForm, PostForm
 
 
 # Create your views here.
@@ -25,13 +28,23 @@ class PostListView(ListView):
     ordering = '-time_in'
     template_name = 'posts.html'
     context_object_name = 'post'
-    paginate_by = 8
+    paginate_by = 12
 
 
 class PostDetailView(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
+
+
+# class RegisterView(CreateView):
+#     model = User
+#     form_class = CustomSignupForm
+#     success_url = '/login'
+#     template_name = 'registration/register.html'
+
+
+
 
 
 

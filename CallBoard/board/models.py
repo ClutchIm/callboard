@@ -167,17 +167,23 @@ class Comment(models.Model):
 
 class OneTimeCode(models.Model):
     """
-        Модель создания одноразового кода для регистрации, содержит поля:
+        Модель создания для одноразового кода при регистрации, содержит поля:
 
         code - текстовое поле, которое хранит код до момента его активации
     или до истечения его срока
-
-        generate_code() - функция генерирующая одноразовый код
+        user - поле связанное с моделью User для привязки кода к определенному
+    пользователю
     """
 
     code = models.IntegerField(unique=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    time_in = models.DateTimeField(auto_now_add=True)
 
     def generate_code(self):
+        """
+            Функция генерирующая одноразовый код
+        """
+
         self.code = random.randrange(100000, 999999)
         self.save()
 
