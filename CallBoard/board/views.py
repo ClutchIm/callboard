@@ -1,12 +1,11 @@
-from django.contrib.auth import logout
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout, authenticate, login
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView
 
 from .models import Image, Video, Post, OneTimeCode, Member
-# from .forms import CustomSignupForm, PostForm
+from .forms import UserCreationForm, PostForm
 
 
 # Create your views here.
@@ -57,6 +56,16 @@ class RegisterView(View):
 
         if form.is_valid():
             form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect('/post/')
+
+        context = {
+            'form': form
+        }
+        return render(request, self.template_name, context)
 
 
 
