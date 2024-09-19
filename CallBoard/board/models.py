@@ -1,9 +1,18 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from embed_video.fields import EmbedVideoField
 import random
+from django.utils.translation import gettext_lazy as _
 
 from .resources import CATEGORY_CHOICE
+
+
+class User(AbstractUser):
+
+    email = models.EmailField(_("email address"), unique=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
 
 class Member(models.Model):
