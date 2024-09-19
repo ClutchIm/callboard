@@ -9,7 +9,9 @@ from .resources import CATEGORY_CHOICE
 
 class User(AbstractUser):
 
-    email = models.EmailField(_("email address"), unique=True)
+    email = models.EmailField(unique=True)
+    is_verified = models.BooleanField(default=False)
+    email_otp = models.CharField(max_length=6, blank=True, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
