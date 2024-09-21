@@ -1,6 +1,6 @@
 from django import template
 
-from board.models import Image, PostImage, Post, PostVideo
+from board.models import Image, PostImage, Post, PostVideo, User
 
 
 register = template.Library()
@@ -57,4 +57,23 @@ def get_video(value: Post) -> list[PostVideo]:
     """
 
     return PostVideo.objects.filter(post=value.id).all()
+
+
+@register.filter
+def censor_mail(value: User) -> str:
+    email = value.email
+    before_at = ''
+    after_at = ''
+    at = False
+
+    for e in email:
+        if '@' == e:
+            at = True
+
+        if at:
+            after_at = after_at + e
+        else:
+            before_at = before_at + e
+
+    return before_at.replace(before_at[2:], '*' * len(before_at[2:])) + after_at
 

@@ -9,36 +9,45 @@ from .resources import CATEGORY_CHOICE
 
 class User(AbstractUser):
 
-    email = models.EmailField(unique=True)
-    is_verified = models.BooleanField(default=False)
-    email_otp = models.CharField(max_length=6, blank=True, null=True)
-
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username"]
-
-
-class Member(models.Model):
-    """
-        Модель пользователя, содержащее поля:
-
-        user - поле связанное напрямую с моделью User
-        user_response - булево поле обозначающее согласие
-    на отправку уведомлений на e-mail об ответе на отклик
-    по дефолту True
-        news_subscription - булево поле обозначающее включение
-    или отключение подписки на новостную рассылку по дефолту False
-    """
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    email = models.EmailField(unique=True)
+    is_verified = models.BooleanField(default=False)
+    email_otp = models.CharField(max_length=6, blank=True, null=True)
     user_response = models.BooleanField(default=True, verbose_name="Уведомление об откликах")
     news_subscription = models.BooleanField(default=False, verbose_name="Новостная рассылка")
 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
     def __str__(self):
-        return f'{self.user}'
+        return f'{self.username}'
+
+
+# class Member(models.Model):
+#     """
+#         Модель пользователя, содержащее поля:
+#
+#         user - поле связанное напрямую с моделью User
+#         user_response - булево поле обозначающее согласие
+#     на отправку уведомлений на e-mail об ответе на отклик
+#     по дефолту True
+#         news_subscription - булево поле обозначающее включение
+#     или отключение подписки на новостную рассылку по дефолту False
+#     """
+#
+#     class Meta:
+#         verbose_name = 'Пользователь'
+#         verbose_name_plural = 'Пользователи'
+#
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+#     user_response = models.BooleanField(default=True, verbose_name="Уведомление об откликах")
+#     news_subscription = models.BooleanField(default=False, verbose_name="Новостная рассылка")
+#
+#     def __str__(self):
+#         return f'{self.user}'
 
 
 class Image(models.Model):
@@ -92,7 +101,7 @@ class Post(models.Model):
     text = models.TextField(verbose_name="Текст")
     image = models.ManyToManyField(Image, through='PostImage', verbose_name="Изображения")
     video = models.ManyToManyField(Video, through='PostVideo', verbose_name="Видео")
-    author = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name="Автор")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE, verbose_name="Категория")
     time_in = models.DateTimeField(auto_now_add=True)
 
@@ -167,7 +176,7 @@ class Comment(models.Model):
         verbose_name_plural = 'Отклики'
 
     post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
-    author = models.ForeignKey(Member, on_delete=models.CASCADE, verbose_name="Автор")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
     text = models.TextField(verbose_name="Текст")
     time_in = models.DateTimeField(auto_now_add=True)
     confirmed = models.BooleanField(default=False, verbose_name="Подтвержденный отклик")

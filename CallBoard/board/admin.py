@@ -4,7 +4,7 @@ from django.contrib import admin
 
 
 from .models import (
-    Member, Image, Video, Post, Comment, PostVideo, PostImage
+    User, Image, Video, Post, Comment, PostVideo, PostImage
 )
 
 
@@ -36,6 +36,6 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(Image, ImageAdmin)
 admin.site.register(Video)
 admin.site.register(Comment)
-admin.site.register(Member)
+admin.site.register(User)
 
 
