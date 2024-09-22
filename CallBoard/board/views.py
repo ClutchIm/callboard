@@ -4,11 +4,11 @@ from django.db.utils import IntegrityError
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView
-from django.core.mail import send_mail
+from django.contrib.auth.models import Group
 
 from .models import Image, Video, Post, User
 # from .forms import PostForm
-from .utils import generate_otp, verify_otp
+from .utils import generate_otp, verify_otp, send_email_otp
 
 
 # Create your views here.
@@ -67,20 +67,9 @@ def register(request):
                 error_msg = 'Пользователь с таким именем уже существует'
                 return render(request, 'registration/register.html', {'msg': error_msg})
 
+            generate_otp(user=user)
+            send_email_otp(user=user)
 
-            # Генерация одноразового кода
-            email_otp = generate_otp()
-            user.email_otp = email_otp
-            user.save()
-
-            # Отправка сообщения на почту с одноразовым кодом
-            send_mail(
-                'Подтверждение почты с помощью одноразового кода',
-                f'Ваш код подтверждения для регистрации на сайте: {email_otp}',
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
             return redirect('verify_otp', user_id=user.id)
 
         else:
@@ -96,11 +85,16 @@ def verify(request, user_id):
     if request.method == 'POST':
         email_otp = request.POST['email_otp']
 
-        if verify_otp(email_otp, user.email_otp):
+        if verify_otp(otp=email_otp, user=user):
             user.is_verified = True
             user.email_otp = None
+
+            logged_users = Group.objects.get(name='logged_users')
+            user.groups.add(logged_users)
+
             user.save()
             login(request, user)
+
             return redirect('/post/')
         else:
             msg = 'Пожалуйста проверьте правильность написания кода'

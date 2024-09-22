@@ -26,30 +26,6 @@ class User(AbstractUser):
         return f'{self.username}'
 
 
-# class Member(models.Model):
-#     """
-#         Модель пользователя, содержащее поля:
-#
-#         user - поле связанное напрямую с моделью User
-#         user_response - булево поле обозначающее согласие
-#     на отправку уведомлений на e-mail об ответе на отклик
-#     по дефолту True
-#         news_subscription - булево поле обозначающее включение
-#     или отключение подписки на новостную рассылку по дефолту False
-#     """
-#
-#     class Meta:
-#         verbose_name = 'Пользователь'
-#         verbose_name_plural = 'Пользователи'
-#
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
-#     user_response = models.BooleanField(default=True, verbose_name="Уведомление об откликах")
-#     news_subscription = models.BooleanField(default=False, verbose_name="Новостная рассылка")
-#
-#     def __str__(self):
-#         return f'{self.user}'
-
-
 class Image(models.Model):
     """
         Модель изображения, содержащее поле:
@@ -183,30 +159,4 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.text}'
-
-
-class OneTimeCode(models.Model):
-    """
-        Модель создания для одноразового кода при регистрации, содержит поля:
-
-        code - текстовое поле, которое хранит код до момента его активации
-    или до истечения его срока
-        user - поле связанное с моделью User для привязки кода к определенному
-    пользователю
-    """
-
-    code = models.IntegerField(unique=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
-    time_in = models.DateTimeField(auto_now_add=True)
-
-    def generate_code(self):
-        """
-            Функция генерирующая одноразовый код
-        """
-
-        self.code = random.randrange(100000, 999999)
-        self.save()
-
-    def __str__(self):
-        return f'{self.code}'
 
