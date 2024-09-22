@@ -1,0 +1,20 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+    Личный кабинет
+{% endblock title %}
+
+{% block name %}
+    Личный кабинет
+{% endblock name %}
+
+{% block content %}
+
+    {% if comment.author == user %}
+        <h1>asdasd</h1>
+    {% endif %}
+
+{% endblock content %}
+

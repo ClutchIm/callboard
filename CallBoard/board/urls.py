@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .views import image, video, PostListView, PostDetailView, logout_view, register, verify
+from .views import image, video, PostListView, PostDetailView, logout_view, register, verify, PersonalOfficeView
 
 urlpatterns = [
     path('image/<int:image_id>', image, name='image'),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('user/', include('django.contrib.auth.urls')),
     path('register/', register, name='register'),
     path('verify_otp/<int:user_id>/', verify, name='verify_otp'),
+    path('personal', PersonalOfficeView.as_view(), name='personal'),
 ]

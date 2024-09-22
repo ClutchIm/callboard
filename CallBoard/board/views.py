@@ -1,12 +1,15 @@
+from lib2to3.fixes.fix_input import context
+
 from django.conf import settings
 from django.contrib.auth import logout, login
 from django.db.utils import IntegrityError
 from django.http import Http404
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
 
-from .models import Image, Video, Post, User
+from .forms import PostForm
+from .models import Image, Video, Post, User, Comment
 # from .forms import PostForm
 from .utils import generate_otp, verify_otp, send_email_otp
 
@@ -25,7 +28,7 @@ def video(request):
     vid = Video.objects.all()
     return render(request, 'video.html', {'videos': vid})
 
-
+# TODO: сделать поиск
 class PostListView(ListView):
     model = Post
     ordering = '-time_in'
@@ -33,11 +36,41 @@ class PostListView(ListView):
     context_object_name = 'post'
     paginate_by = 12
 
-
+# TODO: добавить список верифицированных комментариев
 class PostDetailView(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
+
+# TODO: Закончить патерн, сделать форму, посмотреть как ее добавить с учетом фото и видео
+class PostCreateView(CreateView):
+    permission_required = ('board.add_post',)
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit.html'
+
+
+class PostUpdateView(UpdateView):
+    permission_required = ('board.change_post',)
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit.html'
+
+# TODO: сделать патерн
+class PostDeleteView(DeleteView):
+    permission_required = ('board.delete_post',)
+    model = Post
+    template_name = 'post_delete.html'
+
+# TODO: Когда добавлю комменты и посты доработать
+class PersonalOfficeView(ListView):
+    model = Comment
+    template_name = 'personal_office.html'
+    context_object_name = 'comments'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
 
 
 def logout_view(request):
