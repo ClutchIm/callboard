@@ -2,6 +2,7 @@
 
 {% load custom_filters %}
 {% load custom_tags %}
+{% load static %}
 
 {% block title %}
     Посты
@@ -23,13 +24,13 @@
                             {% if p|image_check %}
                                 <img class="card-img-top" src={{p|preview}} />
                             {% else %}
-                                <img class="card-img-top" src={%empty_img%} />
+                                <img class="card-img-top" src={% static 'images/Empty.jpg'%} />
                             {% endif %}
                             <!-- Post details-->
                             <div class="card-body p-4">
                                 <div class="text-center">
                                     <!-- Post name-->
-                                    <h5 class="fw-bolder">{{ p.title }}</h5>
+                                    <h5 class="fw-bolder">{{ p.preview }}</h5>
                                     <!-- Post category-->
                                     {{ p.show_category }}
                                 </div>

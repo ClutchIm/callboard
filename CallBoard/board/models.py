@@ -50,6 +50,17 @@ class Post(models.Model):
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE, verbose_name="Категория")
     time_in = models.DateTimeField(auto_now_add=True)
 
+    def preview(self):
+        """
+            Возвращает первые 30 символов заголовка. Если он больше 30 символов,
+        добавляет многоточие
+        """
+
+        dots = ''
+        if len(self.title) > 30:
+            dots = '...'
+        return self.title[:30] + dots
+
     def show_category(self):
         """
             Выводит название категории, а не его ключ
