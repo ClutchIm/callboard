@@ -13,7 +13,7 @@ def preview(value: Post) -> Image:
     """
 
     img = Image.objects.filter(post=value).first()
-    return img.image.file.url
+    return img.file.url
 
 
 @register.filter

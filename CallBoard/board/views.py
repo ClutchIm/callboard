@@ -53,7 +53,9 @@ class PostInline():
         if not all((x.is_valid() for x in named_formsets.values())):
             return self.render_to_response(self.get_context_data(form=form))
 
-        self.object = form.save()
+        self.object = form.save(commit=False)
+        self.object.author = self.request.user
+        self.object.save()
 
         # для каждого набора форм попытаться найти определенную функцию
         # сохранения набора форм, в противном случае просто сохранить
@@ -84,7 +86,7 @@ class PostInline():
         for obj in formset.deleted_objects:
             obj.delete()
         for image in images:
-            image.product = self.object
+            image.post = self.object
             image.save()
 
 # TODO: Закончить патерн, сделать форму, посмотреть как ее добавить с учетом фото и видео

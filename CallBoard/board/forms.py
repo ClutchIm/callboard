@@ -28,7 +28,7 @@ class VideoForm(forms.ModelForm):
 
 ImageFormSet = inlineformset_factory(
     Post, Image, form=ImageForm,
-    extra=1, can_delete=True, can_delete_extra=True, max_num=9
+    extra=1, can_delete=True, can_delete_extra=True, max_num=10
 )
 
 VideoFormSet = inlineformset_factory(

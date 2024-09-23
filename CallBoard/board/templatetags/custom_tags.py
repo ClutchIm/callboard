@@ -12,5 +12,5 @@ def empty_img():
         Возвращает заготовленную картинку, обозначающую,
     что в посте нет картинок
     """
-    img = Image.objects.filter(id=10).get()
+    img = Image.objects.filter(id=1).get()
     return img.file.url

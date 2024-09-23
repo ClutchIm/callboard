@@ -54,7 +54,6 @@
                 <thead class="text-secondary">
                     <th>Изображение <span style="color: red;" class="required">*</span></th>
                     <th>Удалить?</th>
-                    <th>Custom Delete btn</th>
                 </thead>
                 <tbody id="item-images">
                     {% for error in formset.non_form_errors %}
@@ -87,7 +86,7 @@
                                             </button>
                                             </div>
                                             <div class="modal-footer">
-                                                <a href="{% url 'products:delete_image' formss.instance.pk %}" type="button" class="btn btn-primary">Да, удалить</a>
+                                                <a href="{% url 'delete_image' formss.instance.pk %}" type="button" class="btn btn-primary">Да, удалить</a>
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                                             </div>
                                         </div>
@@ -123,7 +122,6 @@
                 <thead class="text-secondary">
                     <th>Видео <span style="color: red;" class="required">*</span></th>
                     <th>Удалить?</th>
-                    <th>Custom Delete btn</th>
                 </thead>
                 <tbody id="item-video">
                     {% for error in formset.non_form_errors %}
@@ -156,7 +154,7 @@
                                             </button>
                                             </div>
                                             <div class="modal-footer">
-                                                <a href="{% url 'products:delete_video' formss.instance.pk %}" type="button" class="btn btn-primary">Да, удалить</a>
+                                                <a href="{% url 'delete_video' formss.instance.pk %}" type="button" class="btn btn-primary">Да, удалить</a>
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                                             </div>
                                         </div>
