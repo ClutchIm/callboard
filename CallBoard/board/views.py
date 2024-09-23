@@ -49,6 +49,13 @@ class PostCreateView(CreateView):
     form_class = PostForm
     template_name = 'post_edit.html'
 
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.author = self.request.user
+        post.save()
+        # TODO: notify_about_post
+        return super().form_valid(form)
+
 
 class PostUpdateView(UpdateView):
     permission_required = ('board.change_post',)
