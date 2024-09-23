@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import ForeignKey
 from embed_video.fields import EmbedVideoField
 import random
 from django.utils.translation import gettext_lazy as _
@@ -26,36 +27,6 @@ class User(AbstractUser):
         return f'{self.username}'
 
 
-class Image(models.Model):
-    """
-        Модель изображения, содержащее поле:
-
-        file - поле изображения
-    """
-
-    class Meta:
-        verbose_name = 'Изображение'
-        verbose_name_plural = 'Изображения'
-
-    file = models.ImageField(upload_to='board/files/images/', verbose_name="Изображение")
-
-
-
-class Video(models.Model):
-    """
-        Модель видеороликов хранящее информацию о ссылках на ролики,
-    которые будут напрямую запускаться на сайте. Содержит поля:
-
-        url - поле хранящее ссылку на ролик
-    """
-
-    class Meta:
-        verbose_name = 'Видео'
-        verbose_name_plural = 'Видео'
-
-    url = EmbedVideoField(verbose_name="Ссылка")
-
-
 class Post(models.Model):
     """
         Модель поста, содержащее поля:
@@ -75,8 +46,6 @@ class Post(models.Model):
 
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     text = models.TextField(verbose_name="Текст")
-    image = models.ManyToManyField(Image, through='PostImage', verbose_name="Изображения")
-    video = models.ManyToManyField(Video, through='PostVideo', verbose_name="Видео")
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор")
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICE, verbose_name="Категория")
     time_in = models.DateTimeField(auto_now_add=True)
@@ -93,47 +62,36 @@ class Post(models.Model):
         return f'{self.title}'
 
 
-class PostVideo(models.Model):
+class Image(models.Model):
     """
-        Модель связывающая модели Post и Video для множественного
-    добавления видео к посту, содержит поля:
+        Модель изображения, содержащее поле:
 
-        post - поле связанное с моделью Post
-        video - поле связанное с моделью Video
+        file - поле изображения
     """
 
     class Meta:
-        verbose_name = 'Пост-Видео'
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
 
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name="Пост")
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, verbose_name="Видео")
-
-    def __str__(self):
-        return f'{self.post}: {self.video}'
+    file = models.ImageField(upload_to='board/files/images/', verbose_name="Изображение")
+    post = ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Пост')
 
 
-class PostImage(models.Model):
+
+class Video(models.Model):
     """
-        Модель связывающая модели Post и Image для множественного
-    добавления картинок к посту, содержит поля:
+        Модель видеороликов хранящее информацию о ссылках на ролики,
+    которые будут напрямую запускаться на сайте. Содержит поля:
 
-        post - поле связанное с моделью Post
-        image - поле связанное с моделью Image
+        url - поле хранящее ссылку на ролик
     """
 
     class Meta:
-        verbose_name = 'Пост-Изображение'
+        verbose_name = 'Видео'
+        verbose_name_plural = 'Видео'
 
-    post = models.ForeignKey(
-        Post,
-        on_delete=models.CASCADE,
-        verbose_name="Пост",
-        help_text="Первое фото будет выбрано в качестве превью",
-    )
-    image = models.ForeignKey(Image, on_delete=models.CASCADE, verbose_name="Изображение")
-
-    def __str__(self):
-        return f'{self.post}: {self.image}'
+    url = EmbedVideoField(verbose_name="Ссылка")
+    post = ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Пост')
 
 
 class Comment(models.Model):

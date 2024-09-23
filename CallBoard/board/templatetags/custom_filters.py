@@ -1,6 +1,6 @@
 from django import template
 
-from board.models import Image, PostImage, Post, PostVideo, User
+from board.models import Image, Video, Post, User
 
 
 register = template.Library()
@@ -12,7 +12,7 @@ def preview(value: Post) -> Image:
         Принимает объект модели Post и возвращает первую картинку в этой модели
     """
 
-    img = PostImage.objects.filter(post=value).first()
+    img = Image.objects.filter(post=value).first()
     return img.image.file.url
 
 
@@ -23,7 +23,7 @@ def image_check(value: Post) -> bool:
     """
 
 
-    if PostImage.objects.filter(post=value.id).first():
+    if Image.objects.filter(post=value.id).first():
         return True
     else:
         return False
@@ -35,28 +35,28 @@ def video_check(value: Post) -> bool:
         Принимает объект модели Post и проверяет есть ли в нем прикрепленные видео
     """
 
-    if PostVideo.objects.filter(post=value.id).first():
+    if Video.objects.filter(post=value.id).first():
         return True
     else:
         return False
 
 
 @register.filter
-def get_image(value: Post) -> list[PostImage]:
+def get_image(value: Post) -> list[Image]:
     """
         Принимает объект модели Post, обрабатывая, возвращает список всех связанных изображений
     """
 
-    return PostImage.objects.filter(post=value.id).all()
+    return Image.objects.filter(post=value.id).all()
 
 
 @register.filter
-def get_video(value: Post) -> list[PostVideo]:
+def get_video(value: Post) -> list[Video]:
     """
         Принимает объект модели Post, обрабатывая, возвращает список всех связанных видео
     """
 
-    return PostVideo.objects.filter(post=value.id).all()
+    return Video.objects.filter(post=value.id).all()
 
 
 @register.filter

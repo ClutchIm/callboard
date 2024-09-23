@@ -1,6 +1,7 @@
 from lib2to3.fixes.fix_input import context
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.db.utils import IntegrityError
 from django.http import Http404
@@ -8,9 +9,8 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
 
-from .forms import PostForm
 from .models import Image, Video, Post, User, Comment
-# from .forms import PostForm
+from .forms import PostForm, ImageFormSet, VideoFormSet
 from .utils import generate_otp, verify_otp, send_email_otp
 
 
@@ -42,32 +42,135 @@ class PostDetailView(DetailView):
     template_name = 'post.html'
     context_object_name = 'post'
 
-# TODO: Закончить патерн, сделать форму, посмотреть как ее добавить с учетом фото и видео
-class PostCreateView(CreateView):
-    permission_required = ('board.add_post',)
-    model = Post
+
+class PostInline():
     form_class = PostForm
-    template_name = 'post_edit.html'
+    model = Post
+    template_name = "post_create_or_update.html"
 
     def form_valid(self, form):
-        post = form.save(commit=False)
-        post.author = self.request.user
-        post.save()
-        # TODO: notify_about_post
-        return super().form_valid(form)
+        named_formsets = self.get_named_formsets()
+        if not all((x.is_valid() for x in named_formsets.values())):
+            return self.render_to_response(self.get_context_data(form=form))
+
+        self.object = form.save()
+
+        # для каждого набора форм попытаться найти определенную функцию
+        # сохранения набора форм, в противном случае просто сохранить
+        for name, formset in named_formsets.items():
+            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
+            if formset_save_func is not None:
+                formset_save_func(formset)
+            else:
+                formset.save()
+        return redirect('PostList')
+
+    def formset_video_valid(self, formset):
+        """
+            Триггер для сохранения формсета видео.
+        """
+        video = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for vid in video:
+            vid.post = self.object
+            vid.save()
+
+    def formset_images_valid(self, formset):
+        """
+            Триггер для сохранения формсета изображений.
+        """
+        images = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for image in images:
+            image.product = self.object
+            image.save()
+
+# TODO: Закончить патерн, сделать форму, посмотреть как ее добавить с учетом фото и видео
+class PostCreateView(PostInline ,CreateView):
+    permission_required = ('board.add_post',)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PostCreateView, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {
+                'video': VideoFormSet(prefix='video'),
+                'images': ImageFormSet(prefix='images'),
+            }
+        else:
+            return {
+                'video': VideoFormSet(self.request.POST or None, self.request.FILES or None, prefix='video'),
+                'images': ImageFormSet(self.request.POST or None, self.request.FILES or None, prefix='images')
+            }
 
 
 class PostUpdateView(UpdateView):
     permission_required = ('board.change_post',)
-    model = Post
-    form_class = PostForm
-    template_name = 'post_edit.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(PostUpdateView, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        return {
+            'video': VideoFormSet(
+                self.request.POST or None,
+                self.request.FILES or None,
+                instance=self.object,
+                prefix='videos'
+            ),
+
+            'images': ImageFormSet(
+                self.request.POST or None,
+                self.request.FILES or None,
+                instance=self.object,
+                prefix='images'
+            ),
+        }
 
 # TODO: сделать патерн
 class PostDeleteView(DeleteView):
     permission_required = ('board.delete_post',)
     model = Post
     template_name = 'post_delete.html'
+
+
+def delete_image(request, pk):
+    try:
+        image = Image.objects.get(id=pk)
+    except Image.DoesNotExist:
+        messages.success(
+            request, 'Изображение не найдено'
+            )
+        return redirect('update_post', pk=image.post.id)
+
+    image.delete()
+    messages.success(
+            request, 'Изображение удаленно'
+            )
+    return redirect('update_post', pk=image.product.id)
+
+
+def delete_video(request, pk):
+    try:
+        video = Video.objects.get(id=pk)
+    except Video.DoesNotExist:
+        messages.success(
+            request, 'Видео не найдено'
+            )
+        return redirect('update_post', pk=video.product.id)
+
+    video.delete()
+    messages.success(
+            request, 'Видео удалено'
+            )
+    return redirect('update_post', pk=video.product.id)
 
 # TODO: Когда добавлю комменты и посты доработать
 class PersonalOfficeView(ListView):

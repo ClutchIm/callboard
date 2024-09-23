@@ -4,18 +4,18 @@ from django.contrib import admin
 
 
 from .models import (
-    User, Image, Video, Post, Comment, PostVideo, PostImage
+    User, Image, Video, Post, Comment
 )
 
 
 class VideoInLine(admin.TabularInline):
-    model = PostVideo
+    model = Video
     extra = 1
     max_num = 3
 
 
 class ImageInLine(admin.TabularInline):
-    model = PostImage
+    model = Image
     extra = 1
     max_num = 10
 
