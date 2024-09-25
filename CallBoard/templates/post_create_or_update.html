@@ -40,7 +40,7 @@
                 {% for fields in formset.empty_form.hidden_fields %}
                     {{ fields }}
                 {% endfor %}
-            
+
                 {% for fields in formset.empty_form.visible_fields %}
                     <td>{{fields}}</td>
                 {% endfor %}
@@ -53,7 +53,7 @@
             <table class="table card-body">
                 <thead class="text-secondary">
                     <th>Изображение <span style="color: red;" class="required">*</span></th>
-                    <th>Удалить?</th>
+                    <th>Удаление</th>
                 </thead>
                 <tbody id="item-images">
                     {% for error in formset.non_form_errors %}
@@ -73,25 +73,7 @@
                             {% endfor %}
                             {% if formss.instance.pk %}
                                 <td>
-                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal{{formss.instance.pk}}">
-                                        Удалить
-                                    </button>
-                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Вы уверенны, что хотите удалить изображение?</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <a href="{% url 'delete_image' formss.instance.pk %}" type="button" class="btn btn-primary">Да, удалить</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
+                                    <a class="btn btn-danger" href="{% url 'delete_image' formss.instance.pk %}">Удалить</a>
                                 </td>            
                             {% endif %}
                         </tr>
@@ -121,7 +103,7 @@
             <table class="table card-body">
                 <thead class="text-secondary">
                     <th>Видео <span style="color: red;" class="required">*</span></th>
-                    <th>Удалить?</th>
+                    <th>Удаление?</th>
                 </thead>
                 <tbody id="item-video">
                     {% for error in formset.non_form_errors %}
@@ -141,25 +123,7 @@
                             {% endfor %}
                             {% if formss.instance.pk %}
                                 <td>
-                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal{{formss.instance.pk}}">
-                                        Удалить
-                                    </button>
-                                    <div class="modal fade" id="exampleModal{{formss.instance.pk}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{formss.instance.pk}}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel{{formss.instance.pk}}">Вы уверенны, что хотите удалить видео?</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <a href="{% url 'delete_video' formss.instance.pk %}" type="button" class="btn btn-primary">Да, удалить</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
+                                    <a class="btn btn-danger" href="{% url 'delete_video' formss.instance.pk %}">Удалить</a>
                                 </td>
                             {% endif %}
                         </tr>

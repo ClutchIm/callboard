@@ -1,17 +1,17 @@
-from lib2to3.fixes.fix_input import context
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, login
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.utils import IntegrityError
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
+from rest_framework import permissions
 
 from .models import Image, Video, Post, User, Comment
 from .forms import PostForm, ImageFormSet, VideoFormSet
 from .utils import generate_otp, verify_otp, send_email_otp
+from .mixins import IsVerifiedMixin, AuthorRequiredMixin
 
 
 # Create your views here.
@@ -28,6 +28,19 @@ def video(request):
     vid = Video.objects.all()
     return render(request, 'video.html', {'videos': vid})
 
+class IsAuthorOrIsAuthenticated(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return bool(request.user and request.user.is_authenticated)
+        return obj.author == request.user
+
+
+class IsVerified(permissions.BasePermission):
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_verified
+
 # TODO: сделать поиск
 class PostListView(ListView):
     model = Post
@@ -37,7 +50,7 @@ class PostListView(ListView):
     paginate_by = 12
 
 # TODO: добавить список верифицированных комментариев
-class PostDetailView(DetailView):
+class PostDetailView(IsVerifiedMixin, DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
@@ -89,9 +102,9 @@ class PostInline():
             image.post = self.object
             image.save()
 
-# TODO: Закончить патерн, сделать форму, посмотреть как ее добавить с учетом фото и видео
-class PostCreateView(PostInline ,CreateView):
-    permission_required = ('board.add_post',)
+
+class PostCreateView(PermissionRequiredMixin, PostInline ,CreateView):
+    permission_classes = (IsVerified,)
 
     def get_context_data(self, **kwargs):
         ctx = super(PostCreateView, self).get_context_data(**kwargs)
@@ -111,8 +124,8 @@ class PostCreateView(PostInline ,CreateView):
             }
 
 
-class PostUpdateView(UpdateView):
-    permission_required = ('board.change_post',)
+class PostUpdateView(PermissionRequiredMixin, PostInline, UpdateView):
+    permission_classes = (IsVerified, IsAuthorOrIsAuthenticated)
 
     def get_context_data(self, **kwargs):
         ctx = super(PostUpdateView, self).get_context_data(**kwargs)
@@ -137,7 +150,8 @@ class PostUpdateView(UpdateView):
         }
 
 # TODO: сделать патерн
-class PostDeleteView(DeleteView):
+class PostDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_classes = (IsVerified, IsAuthorOrIsAuthenticated)
     permission_required = ('board.delete_post',)
     model = Post
     template_name = 'post_delete.html'
@@ -150,13 +164,13 @@ def delete_image(request, pk):
         messages.success(
             request, 'Изображение не найдено'
             )
-        return redirect('update_post', pk=image.post.id)
+        return redirect('post_update', pk=image.post.id)
 
     image.delete()
     messages.success(
             request, 'Изображение удаленно'
             )
-    return redirect('update_post', pk=image.product.id)
+    return redirect('post_update', pk=image.post.id)
 
 
 def delete_video(request, pk):
@@ -166,16 +180,17 @@ def delete_video(request, pk):
         messages.success(
             request, 'Видео не найдено'
             )
-        return redirect('update_post', pk=video.product.id)
+        return redirect('post_update', pk=video.post.id)
 
     video.delete()
     messages.success(
             request, 'Видео удалено'
             )
-    return redirect('update_post', pk=video.product.id)
+    return redirect('post_update', pk=video.post.id)
 
 # TODO: Когда добавлю комменты и посты доработать
 class PersonalOfficeView(ListView):
+    permission_classes = (IsVerified,)
     model = Comment
     template_name = 'personal_office.html'
     context_object_name = 'comments'
@@ -196,10 +211,9 @@ def register(request):
         email = request.POST['email']
         password1 = request.POST['password1']
         password2 = request.POST['password2']
-        news_subscription = request.POST['news_subscription']
         try:
-            if news_subscription:
-                news_subscription = True
+            news = request.POST['news_subscription']
+            news_subscription = True
         except KeyError:
             news_subscription = False
 
