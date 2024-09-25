@@ -1,12 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.utils import IntegrityError
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
-from rest_framework import permissions
+from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.reverse import reverse_lazy
 
 from .models import Image, Video, Post, User, Comment
 from .forms import PostForm, ImageFormSet, VideoFormSet
@@ -28,19 +30,6 @@ def video(request):
     vid = Video.objects.all()
     return render(request, 'video.html', {'videos': vid})
 
-class IsAuthorOrIsAuthenticated(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return bool(request.user and request.user.is_authenticated)
-        return obj.author == request.user
-
-
-class IsVerified(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        return request.user.is_verified
-
 # TODO: сделать поиск
 class PostListView(ListView):
     model = Post
@@ -50,7 +39,7 @@ class PostListView(ListView):
     paginate_by = 12
 
 # TODO: добавить список верифицированных комментариев
-class PostDetailView(IsVerifiedMixin, DetailView):
+class PostDetailView(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
@@ -103,8 +92,7 @@ class PostInline():
             image.save()
 
 
-class PostCreateView(PermissionRequiredMixin, PostInline ,CreateView):
-    permission_classes = (IsVerified,)
+class PostCreateView(IsVerifiedMixin, PostInline ,CreateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(PostCreateView, self).get_context_data(**kwargs)
@@ -124,8 +112,7 @@ class PostCreateView(PermissionRequiredMixin, PostInline ,CreateView):
             }
 
 
-class PostUpdateView(PermissionRequiredMixin, PostInline, UpdateView):
-    permission_classes = (IsVerified, IsAuthorOrIsAuthenticated)
+class PostUpdateView(AuthorRequiredMixin, PostInline, UpdateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(PostUpdateView, self).get_context_data(**kwargs)
@@ -150,11 +137,10 @@ class PostUpdateView(PermissionRequiredMixin, PostInline, UpdateView):
         }
 
 # TODO: сделать патерн
-class PostDeleteView(PermissionRequiredMixin, DeleteView):
-    permission_classes = (IsVerified, IsAuthorOrIsAuthenticated)
-    permission_required = ('board.delete_post',)
+class PostDeleteView(AuthorRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_delete.html'
+    success_url = reverse_lazy('PostList')
 
 
 def delete_image(request, pk):
@@ -189,8 +175,7 @@ def delete_video(request, pk):
     return redirect('post_update', pk=video.post.id)
 
 # TODO: Когда добавлю комменты и посты доработать
-class PersonalOfficeView(ListView):
-    permission_classes = (IsVerified,)
+class PersonalOfficeView(LoginRequiredMixin, ListView):
     model = Comment
     template_name = 'personal_office.html'
     context_object_name = 'comments'
@@ -238,7 +223,7 @@ def register(request):
     return render(request, 'registration/register.html')
 
 
-def verify(request, user_id):
+def verify(request, user_id=None):
     user = User.objects.get(id=user_id)
 
     if request.method == 'POST':
@@ -260,5 +245,16 @@ def verify(request, user_id):
             return render(request, 'registration/verify_otp.html', {'error': msg, 'user': user})
 
     return render(request, 'registration/verify_otp.html', {'user': user})
+
+
+@login_required
+def repeat_verify(request):
+    user = request.user
+
+    generate_otp(user=user)
+    send_email_otp(user=user)
+
+    return redirect('verify_otp', user_id=user.id)
+
 
 

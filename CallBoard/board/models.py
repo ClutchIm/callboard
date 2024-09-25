@@ -2,8 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import ForeignKey
 from embed_video.fields import EmbedVideoField
-import random
-from django.utils.translation import gettext_lazy as _
 
 from .resources import CATEGORY_CHOICE
 
@@ -70,7 +68,7 @@ class Post(models.Model):
                 return category[1]
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.preview()}'
 
 
 class Image(models.Model):

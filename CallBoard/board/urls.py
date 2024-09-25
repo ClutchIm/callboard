@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from .views import (
     image, video, PostListView, PostDetailView, logout_view, register, verify, PersonalOfficeView,
-    PostCreateView, PostUpdateView, PostDeleteView, delete_image, delete_video
+    PostCreateView, PostUpdateView, PostDeleteView, delete_image, delete_video, repeat_verify
 )
 
 urlpatterns = [
@@ -14,7 +14,8 @@ urlpatterns = [
     path('user/', include('django.contrib.auth.urls')),
     path('register/', register, name='register'),
     path('verify_otp/<int:user_id>/', verify, name='verify_otp'),
-    path('personal', PersonalOfficeView.as_view(), name='personal'),
+    path('verify_otp/', repeat_verify, name='repeat_verify'),
+    path('personal/', PersonalOfficeView.as_view(), name='personal'),
     path('post/create/', PostCreateView.as_view(), name='post_create'),
     path('post/update/<int:pk>/', PostUpdateView.as_view(), name='post_update'),
     path('post/delete/<int:pk>/', PostDeleteView.as_view(), name='post_delete'),
