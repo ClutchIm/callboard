@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.utils import IntegrityError
 from django.http import Http404
 from django.shortcuts import render, redirect
@@ -17,19 +16,6 @@ from .mixins import IsVerifiedMixin, AuthorRequiredMixin
 
 
 # Create your views here.
-
-def image(request, image_id):
-    images = Image.objects.get(pk=image_id)
-    if images is not None:
-        return render(request, 'image.html', {'image': images})
-    else:
-        return Http404('Image not found')
-
-
-def video(request):
-    vid = Video.objects.all()
-    return render(request, 'video.html', {'videos': vid})
-
 # TODO: сделать поиск
 class PostListView(ListView):
     model = Post
@@ -39,10 +25,44 @@ class PostListView(ListView):
     paginate_by = 12
 
 # TODO: добавить список верифицированных комментариев
-class PostDetailView(DetailView):
-    model = Post
-    template_name = 'post.html'
-    context_object_name = 'post'
+# class PostDetailView(DetailView):
+#     model = Post
+#     template_name = 'post.html'
+#     context_object_name = 'post'
+#
+#     def get_context_data(self, **kwargs):
+#         ctx = super().get_context_data(**kwargs)
+#         ctx['comments'] = Comment.objects.filter(post=self.get_object()).all().order_by('-time_in')
+#
+#         return ctx
+
+# TODO: Доделать скелет
+@login_required
+def post_detail(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    comments = Comment.objects.filter(post=post)
+
+    if request.method == 'POST':
+        text = request.POST['text']
+        Comment.objects.create(text=text, post=post, author=request.user)
+
+
+    return render(request, 'post.html', {'post': post, 'comments': comments})
+
+# TODO: Сделать е-мэйл уведомление
+# class CommentCreateView(LoginRequiredMixin, CreateView):
+#     model = Comment
+#     form_class = CommentForm
+#     template_name = 'comment.html'
+#
+#     def form_valid(self, form):
+#         comment = form.save(commit=False)
+#         comment.author = self.request.user
+#         comment.post = self.get_object()
+#
+#     def get_context_data(self, **kwargs):
+#         ctx = super().get_context_data(**kwargs)
+#         ctx['post'] = self.get_object().post
 
 
 class PostInline():
@@ -136,11 +156,11 @@ class PostUpdateView(AuthorRequiredMixin, PostInline, UpdateView):
             ),
         }
 
-# TODO: сделать патерн
+
 class PostDeleteView(AuthorRequiredMixin, DeleteView):
     model = Post
     template_name = 'post_delete.html'
-    success_url = reverse_lazy('PostList')
+    success_url = reverse_lazy('PostList', )
 
 
 def delete_image(request, pk):

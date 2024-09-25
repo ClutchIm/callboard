@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from .models import Post, Image, Video
+from .models import Post, Image, Video, Comment
 
 
 class PostForm(forms.ModelForm):
