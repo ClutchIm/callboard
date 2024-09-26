@@ -1,8 +1,9 @@
 import pyotp
 from django.conf import settings
 from django.core.mail import send_mail
+from rest_framework.reverse import reverse_lazy
 
-from .models import User
+from .models import User, Post
 
 
 def generate_otp(user: User) -> str:
@@ -27,9 +28,7 @@ def verify_otp(otp: str, user: User) -> bool:
     return otp == user.email_otp
 
 def send_email_otp(user: User) -> None:
-    """
-        Отправляет сообщение на почту с кодом подтверждения.
-    """
+    """Отправляет сообщение на почту с кодом подтверждения."""
 
     email = user.email
     email_otp = user.email_otp
@@ -41,3 +40,18 @@ def send_email_otp(user: User) -> None:
         [email],
         fail_silently=False,
     )
+
+def send_email_new_comment(author: User, post_pk: int) -> None:
+    """Отправляет сообщение на почту о том, что под его постов появился новый комментарий"""
+
+    email = author.email
+    url = reverse_lazy('personal')
+    post = Post.objects.get(pk=post_pk)
+    msg_post = post.preview()
+
+    send_mail(
+        'Новый комментарий к вашему посту'
+        f'''К вашему посту: {msg_post} отправили комментарий. 
+        Для того, чтобы комментарий увидели другие пользователи, его нужно утвердить в личном кабинете: {url}'''
+    )
+

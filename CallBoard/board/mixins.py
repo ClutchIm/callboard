@@ -35,3 +35,12 @@ class IsVerifiedMixin(AccessMixin):
                 return redirect('PostList')
         return super().dispatch(request, *args, **kwargs)
 
+
+class CustomLoginRequiredMixin(AccessMixin):
+    """ Кастомный миксин для редиректа пользователей, которые не вошли на сайт"""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+

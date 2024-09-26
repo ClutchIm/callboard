@@ -2,17 +2,15 @@ from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.db.utils import IntegrityError
-from django.http import Http404
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
-from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.reverse import reverse_lazy
 
 from .models import Image, Video, Post, User, Comment
 from .forms import PostForm, ImageFormSet, VideoFormSet
 from .utils import generate_otp, verify_otp, send_email_otp
-from .mixins import IsVerifiedMixin, AuthorRequiredMixin
+from .mixins import IsVerifiedMixin, AuthorRequiredMixin, CustomLoginRequiredMixin
 
 
 # Create your views here.
@@ -24,45 +22,24 @@ class PostListView(ListView):
     context_object_name = 'post'
     paginate_by = 12
 
-# TODO: добавить список верифицированных комментариев
-# class PostDetailView(DetailView):
-#     model = Post
-#     template_name = 'post.html'
-#     context_object_name = 'post'
-#
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data(**kwargs)
-#         ctx['comments'] = Comment.objects.filter(post=self.get_object()).all().order_by('-time_in')
-#
-#         return ctx
 
-# TODO: Доделать скелет
-@login_required
-def post_detail(request, post_id):
-    post = Post.objects.get(pk=post_id)
-    comments = Comment.objects.filter(post=post)
+def post_detail(request, pk):
+    post = Post.objects.get(pk=pk)
+    comments = Comment.objects.filter(post=post).order_by('-time_in')
+    user_verification = request.user.is_verified or request.user.is_staff
 
     if request.method == 'POST':
         text = request.POST['text']
         Comment.objects.create(text=text, post=post, author=request.user)
 
+        return redirect('PostDetail', pk=pk)
 
-    return render(request, 'post.html', {'post': post, 'comments': comments})
 
-# TODO: Сделать е-мэйл уведомление
-# class CommentCreateView(LoginRequiredMixin, CreateView):
-#     model = Comment
-#     form_class = CommentForm
-#     template_name = 'comment.html'
-#
-#     def form_valid(self, form):
-#         comment = form.save(commit=False)
-#         comment.author = self.request.user
-#         comment.post = self.get_object()
-#
-#     def get_context_data(self, **kwargs):
-#         ctx = super().get_context_data(**kwargs)
-#         ctx['post'] = self.get_object().post
+    return render(
+        request,
+        'post.html',
+        {'post': post, 'comments': comments, 'user_verification': user_verification}
+    )
 
 
 class PostInline():
@@ -195,7 +172,7 @@ def delete_video(request, pk):
     return redirect('post_update', pk=video.post.id)
 
 # TODO: Когда добавлю комменты и посты доработать
-class PersonalOfficeView(LoginRequiredMixin, ListView):
+class PersonalOfficeView(CustomLoginRequiredMixin, ListView):
     model = Comment
     template_name = 'personal_office.html'
     context_object_name = 'comments'
