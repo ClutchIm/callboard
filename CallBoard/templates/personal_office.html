@@ -31,7 +31,6 @@
                                         {{ comm.time_in }}
                                     </p>
                                     <p>
-                                        {% csrf_token %}
                                         <form method="post">
                                             {% csrf_token %}
                                             <input type="hidden" name="pk" value="{{ comm.id }}"/>
