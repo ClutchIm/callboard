@@ -12,7 +12,44 @@
 
 {% block content %}
 
-    {{ user.username }}
+    <div class="container px-4 px-lg-5 mt-5 justify-content-center" xmlns="http://www.w3.org/1999/html">
+        {% for post in posts %}
+            {% if post.id|have_comments %}
+                {{ post.preview }}
+                {% for comm in comments %}
+                    {% if comm.post == post and not comm.confirmed %}
+                            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 mt-3 justify-content-center">
+                                <div class="card h-100" style="height: 200px; width: 1000px; outline: 3px lightgrey solid;">
+                                    <p>
+                                        Пользователь:
+                                        {{ comm.author }}
+                                    </p>
+                                    <p>
+                                        {{ comm.text }}
+                                    </p>
+                                    <p>
+                                        {{ comm.time_in }}
+                                    </p>
+                                    <p>
+                                        {% csrf_token %}
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="pk" value="{{ comm.id }}"/>
+                                            <input type="hidden" name="confirm" value="{{ True }}"/>
+                                            <input type="submit" class="btn btn-success" value="УТВ">
+
+                                        </form>
+
+                                        <input type="button" class="btn btn-success" value="Утвердить">
+                                        <input type="button" class="btn btn-danger" value="Удалить" confirm="False">
+                                    </p>
+                                </div>
+                            </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    </div>
 
 {% endblock content %}
 

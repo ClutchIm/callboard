@@ -47,6 +47,7 @@
             </div>
         </div>
     </header>
+
     {% if user_verification %}
         <form method="post">
             <div class="container px-4 px-lg-5 mt-5 justify-content-center">
@@ -60,6 +61,7 @@
             </div>
         </form>
     {% endif %}
+
     <div class="container px-4 px-lg-5 mt-5 justify-content-center">
         {% for comment in comments %}
             {% if comment.confirmed %}

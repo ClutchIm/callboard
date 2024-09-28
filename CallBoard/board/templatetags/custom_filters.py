@@ -1,6 +1,6 @@
 from django import template
 
-from board.models import Image, Video, Post, User
+from board.models import Image, Video, Post, User, Comment
 
 
 register = template.Library()
@@ -76,4 +76,12 @@ def censor_mail(value: User) -> str:
             before_at = before_at + e
 
     return before_at.replace(before_at[2:], '*' * len(before_at[2:])) + after_at
+
+@register.filter
+def have_comments(pk: int) -> bool:
+    if Comment.objects.filter(post=pk).exists():
+        return True
+    else:
+        return False
+
 

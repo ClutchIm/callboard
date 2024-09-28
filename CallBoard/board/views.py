@@ -6,14 +6,13 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
 from rest_framework.reverse import reverse_lazy
+from urllib3 import request
 
 from .models import Image, Video, Post, User, Comment
 from .forms import PostForm, ImageFormSet, VideoFormSet
-from .utils import generate_otp, verify_otp, send_email_otp
+from .utils import generate_otp, verify_otp, send_email_otp, send_email_new_comment
 from .mixins import IsVerifiedMixin, AuthorRequiredMixin, CustomLoginRequiredMixin
 
-
-# Create your views here.
 # TODO: сделать поиск
 class PostListView(ListView):
     model = Post
@@ -26,11 +25,16 @@ class PostListView(ListView):
 def post_detail(request, pk):
     post = Post.objects.get(pk=pk)
     comments = Comment.objects.filter(post=post).order_by('-time_in')
-    user_verification = request.user.is_verified or request.user.is_staff
+    if request.user.is_authenticated:
+        user_verification = request.user.is_verified or request.user.is_staff
+    else:
+        user_verification = False
 
     if request.method == 'POST':
         text = request.POST['text']
         Comment.objects.create(text=text, post=post, author=request.user)
+
+        send_email_new_comment(author=post.author, post_pk=post.id)
 
         return redirect('PostDetail', pk=pk)
 
@@ -180,6 +184,19 @@ class PersonalOfficeView(CustomLoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
+        context['posts'] = Post.objects.filter(author=self.request.user).order_by('-time_in')
+
+        return context
+
+    def post(self, pk,):
+        print(f'        a       {pk}{type(pk)}')
+        # obj = Comment.objects.get(id=pk)
+        # if confirm:
+        #     obj.confirmed = True
+        # else:
+        #     obj.delete()
+
+        return redirect('personal')
 
 
 def logout_view(request):

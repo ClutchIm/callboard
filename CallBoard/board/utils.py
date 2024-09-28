@@ -1,5 +1,6 @@
 import pyotp
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
 from rest_framework.reverse import reverse_lazy
 
@@ -50,8 +51,29 @@ def send_email_new_comment(author: User, post_pk: int) -> None:
     msg_post = post.preview()
 
     send_mail(
-        'Новый комментарий к вашему посту'
+        'Новый комментарий к вашему посту',
         f'''К вашему посту: {msg_post} отправили комментарий. 
-        Для того, чтобы комментарий увидели другие пользователи, его нужно утвердить в личном кабинете: {url}'''
+        Для того, чтобы комментарий увидели другие пользователи, его нужно утвердить в личном кабинете: {url}''',
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
     )
+
+# def notify_about_new_post(post_pk: int) -> None:
+#     personal_office_url = reverse_lazy('personal')
+#     post_url = reverse_lazy('PostDetail', pk=post_pk)
+#     post = Post.objects.get(pk=post_pk)
+#     msg_post = post.preview()
+#
+#     for user in User.objects.filer():
+#
+#     send_mail(
+#         f'Новый пост: {msg_post}',
+#         f'''Выложили новый пост в категории {post.show_category()}, от автора {post.author}.
+#         Ссылка на пост: {post_url}.
+#         Отключить оповещения о новых постах можно в личном кабинете: {personal_office_url}''',
+#         settings.EMAIL_HOST_USER,
+#         [email],
+#         fail_silently=False,
+#     )
 
