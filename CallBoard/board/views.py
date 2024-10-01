@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
 from django.db.utils import IntegrityError
@@ -6,11 +7,10 @@ from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.models import Group
 from rest_framework.reverse import reverse_lazy
-from urllib3 import request
 
 from .models import Image, Video, Post, User, Comment
 from .forms import PostForm, ImageFormSet, VideoFormSet
-from .utils import generate_otp, verify_otp, send_email_otp, send_email_new_comment
+from .utils import generate_otp, verify_otp, send_email_otp, send_email_new_comment, do_newsletter
 from .mixins import IsVerifiedMixin, AuthorRequiredMixin, CustomLoginRequiredMixin
 
 # TODO: сделать поиск
@@ -293,5 +293,15 @@ def repeat_verify(request):
 
     return redirect('verify_otp', user_id=user.id)
 
+@staff_member_required
+def newsletter(request):
+    if request.method == 'POST':
+        msg_title = request.POST['msg_title']
+        msg_text = request.POST['msg_text']
+
+        do_newsletter(msg_title=msg_title, msg_text=msg_text)
+
+        return redirect('personal')
+    return render(request, 'newsletter.html')
 
 

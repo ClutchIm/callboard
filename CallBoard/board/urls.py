@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from .views import (
     PostListView, post_detail, logout_view, register, verify, PersonalOfficeView, PostCreateView,
-    PostUpdateView, PostDeleteView, delete_image, delete_video, repeat_verify
+    PostUpdateView, PostDeleteView, delete_image, delete_video, repeat_verify, newsletter
 )
 
 urlpatterns = [
@@ -19,4 +19,5 @@ urlpatterns = [
     path('post/delete/<int:pk>/', PostDeleteView.as_view(), name='post_delete'),
     path('delete-image/<int:pk>/', delete_image, name='delete_image'),
     path('delete-video/<int:pk>/', delete_video, name='delete_video'),
+    path('newsletter/', newsletter, name='newsletter'),
 ]

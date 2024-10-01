@@ -1,6 +1,5 @@
 import pyotp
 from django.conf import settings
-from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
 from rest_framework.reverse import reverse_lazy
 
@@ -59,21 +58,18 @@ def send_email_new_comment(author: User, post_pk: int) -> None:
         fail_silently=False,
     )
 
-# def notify_about_new_post(post_pk: int) -> None:
-#     personal_office_url = reverse_lazy('personal')
-#     post_url = reverse_lazy('PostDetail', pk=post_pk)
-#     post = Post.objects.get(pk=post_pk)
-#     msg_post = post.preview()
-#
-#     for user in User.objects.filer():
-#
-#     send_mail(
-#         f'Новый пост: {msg_post}',
-#         f'''Выложили новый пост в категории {post.show_category()}, от автора {post.author}.
-#         Ссылка на пост: {post_url}.
-#         Отключить оповещения о новых постах можно в личном кабинете: {personal_office_url}''',
-#         settings.EMAIL_HOST_USER,
-#         [email],
-#         fail_silently=False,
-#     )
+def do_newsletter(msg_title: str, msg_text: str) -> None:
+    """ Функция, которая делает рассылку всем пользователям, подписанным на новостную рассылку"""
+
+    for user in User.objects.filter(news_subscription=True):
+        email = user.email
+        print(email)
+
+        send_mail(
+            msg_title,
+            msg_text,
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
 
