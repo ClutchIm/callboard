@@ -188,13 +188,36 @@ class PersonalOfficeView(CustomLoginRequiredMixin, ListView):
 
         return context
 
-    def post(self, pk,):
-        print(f'        a       {pk}{type(pk)}')
-        # obj = Comment.objects.get(id=pk)
-        # if confirm:
-        #     obj.confirmed = True
-        # else:
-        #     obj.delete()
+    def post(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            if request.POST.get('confirm'):
+                comment_id = request.POST.get('confirm')
+                comment = Comment.objects.get(id=comment_id)
+                comment.confirmed = True
+                comment.save()
+            if request.POST.get('delete'):
+                comment_id = request.POST.get('delete')
+                Comment.objects.filter(id=comment_id).delete()
+            if request.POST.get('unsubscribe'):
+                user_id = request.POST.get('unsubscribe')
+                user = User.objects.get(id=user_id)
+                user.news_subscription = False
+                user.save()
+            if request.POST.get('subscribe'):
+                user_id = request.POST.get('subscribe')
+                user = User.objects.get(id=user_id)
+                user.news_subscription = True
+                user.save()
+            if request.POST.get('response_false'):
+                user_id = request.POST.get('response_false')
+                user = User.objects.get(id=user_id)
+                user.user_response = False
+                user.save()
+            if request.POST.get('response_true'):
+                user_id = request.POST.get('response_true')
+                user = User.objects.get(id=user_id)
+                user.user_response = True
+                user.save()
 
         return redirect('personal')
 

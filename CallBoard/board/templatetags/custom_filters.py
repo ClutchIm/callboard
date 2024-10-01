@@ -79,7 +79,7 @@ def censor_mail(value: User) -> str:
 
 @register.filter
 def have_comments(pk: int) -> bool:
-    if Comment.objects.filter(post=pk).exists():
+    if Comment.objects.filter(post=pk, confirmed=False).exists():
         return True
     else:
         return False
