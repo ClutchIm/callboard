@@ -13,7 +13,7 @@ from .forms import PostForm, ImageFormSet, VideoFormSet
 from .utils import generate_otp, verify_otp, send_email_otp, send_email_new_comment, do_newsletter
 from .mixins import IsVerifiedMixin, AuthorRequiredMixin, CustomLoginRequiredMixin
 
-# TODO: сделать поиск
+
 class PostListView(ListView):
     model = Post
     ordering = '-time_in'
@@ -25,6 +25,8 @@ class PostListView(ListView):
 def post_detail(request, pk):
     post = Post.objects.get(pk=pk)
     comments = Comment.objects.filter(post=post).order_by('-time_in')
+    user = request.user
+
     if request.user.is_authenticated:
         user_verification = request.user.is_verified or request.user.is_staff
     else:
@@ -42,7 +44,7 @@ def post_detail(request, pk):
     return render(
         request,
         'post.html',
-        {'post': post, 'comments': comments, 'user_verification': user_verification}
+        {'post': post, 'comments': comments, 'user_verification': user_verification, 'user': user}
     )
 
 
@@ -175,7 +177,7 @@ def delete_video(request, pk):
             )
     return redirect('post_update', pk=video.post.id)
 
-# TODO: Когда добавлю комменты и посты доработать
+
 class PersonalOfficeView(CustomLoginRequiredMixin, ListView):
     model = Comment
     template_name = 'personal_office.html'

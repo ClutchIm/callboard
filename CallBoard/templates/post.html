@@ -14,6 +14,17 @@
 
 {% block content %}
 
+    {% if user_verification %}
+        {% if post.author == user or user.is_staff %}
+            <div class="container px-4 px-lg-5 mt-5">
+                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                    <a class="btn btn-outline-dark mt-auto" href="{% url 'post_update' pk=post.id %}">Редактировать</a>
+                    <a class="btn btn-outline-dark mt-auto" href="{% url 'post_delete' pk=post.id %}">Удалить</a>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
     {% if post|image_check %}
         <div class="container px-4 px-lg-5 mt-5">
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
